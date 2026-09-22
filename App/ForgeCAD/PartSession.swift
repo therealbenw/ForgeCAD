@@ -63,7 +63,11 @@ final class PartSession {
     ) {
         document.wrappedValue = new
         undoManager?.registerUndo(withTarget: self) { session in
-            session.replace(document, with: old, restoring: new, actionName: actionName, undoManager: undoManager)
+            // UndoManager runs handlers synchronously on the thread that
+            // called undo()/redo(); for UI-driven undo that is always main.
+            MainActor.assumeIsolated {
+                session.replace(document, with: old, restoring: new, actionName: actionName, undoManager: undoManager)
+            }
         }
         undoManager?.setActionName(actionName)
     }
