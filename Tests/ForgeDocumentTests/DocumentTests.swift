@@ -63,17 +63,26 @@ import ForgeSketch
 }
 
 @Suite struct UndoStackTests {
+    // `#expect` captures its expression immutably, so mutating calls are
+    // hoisted into `let`s before being asserted on.
     @Test func undoRedoWalksHistory() {
         var stack = UndoStack(0)
         stack.commit(1)
         stack.commit(2)
         stack.commit(2) // no-op
         #expect(stack.present == 2)
-        #expect(stack.undo())
+
+        let undid = stack.undo()
+        #expect(undid)
         #expect(stack.present == 1)
-        #expect(stack.redo())
+
+        let redid = stack.redo()
+        #expect(redid)
         #expect(stack.present == 2)
-        #expect(!stack.redo())
+
+        let redidAgain = stack.redo()
+        #expect(!redidAgain)
+
         stack.undo()
         stack.commit(5)
         #expect(!stack.canRedo)
@@ -83,9 +92,12 @@ import ForgeSketch
     @Test func limitDropsOldest() {
         var stack = UndoStack(0, limit: 2)
         for i in 1...5 { stack.commit(i) }
-        #expect(stack.undo())
-        #expect(stack.undo())
-        #expect(!stack.undo())
+        let first = stack.undo()
+        let second = stack.undo()
+        let third = stack.undo()
+        #expect(first)
+        #expect(second)
+        #expect(!third)
         #expect(stack.present == 3)
     }
 }
