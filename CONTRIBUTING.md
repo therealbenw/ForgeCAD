@@ -21,6 +21,13 @@ swift test                  # needs Xcode (Swift Testing), not just Command Line
 cd App && xcodegen generate # regenerate the app project after touching project.yml
 ```
 
+> **Test targets only compile under full Xcode.** The Command Line Tools ship
+> neither Swift Testing nor XCTest, so on a CLT-only machine `swift build`
+> succeeds while a broken test file goes unnoticed. CI is the gate for tests:
+> open a PR and check the macOS job before assuming the suite is green.
+> Also note that Swift Testing's `#expect(...)` captures its expression
+> immutably — hoist mutating calls into a `let` before asserting on them.
+
 Branch from `main`, open a PR, CI must be green. Squash-merge with a message in
 the form `module: what changed` (e.g. `kernel: tessellate cylindrical faces`).
 
