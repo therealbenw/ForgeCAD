@@ -7,7 +7,8 @@ rendered with SwiftUI + RealityKit.
 
 > **Status: M0 skeleton.** The modeling stack (sketch → constraints → extrude →
 > B-rep → tessellation → STL) works end-to-end and is tested; the app shows a
-> feature tree, an orbitable 3D viewport, and can insert and export a sample
+> feature tree, an orbitable 3D viewport, opens and saves `.forge` parts
+> through the system document browser, and can insert and export a sample
 > box. See [docs/ROADMAP.md](docs/ROADMAP.md) for what comes next.
 
 ## Layout
@@ -19,13 +20,13 @@ ForgeCAD/
 │   ├── ForgeGeometry/     vectors, planes, transforms, 2D polygons, tolerances
 │   ├── ForgeKernel/       B-rep topology, SolidBuilder, Extrude, Tessellator, Measure
 │   ├── ForgeSketch/       sketch entities, constraints, solver, profile extraction
-│   ├── ForgeDocument/     feature tree, Regenerator, UndoStack
+│   ├── ForgeDocument/     feature tree, Regenerator
 │   ├── ForgeRender/       RenderMesh (GPU buffers), OrbitCamera
 │   └── ForgeIO/           STL / OBJ export, .forge document format
 ├── Tests/                 Swift Testing suites, one per module
 ├── App/
 │   ├── project.yml        XcodeGen spec for the iPad app
-│   └── ForgeCAD/          SwiftUI + RealityKit app sources
+│   └── ForgeCAD/          SwiftUI + RealityKit app: DocumentGroup, PartSession, viewport
 └── docs/                  ARCHITECTURE.md, ROADMAP.md
 ```
 
@@ -65,8 +66,12 @@ Option B — by hand in Xcode:
    and add all six `Forge*` products to the app target.
 4. Set deployment target to iOS 18.0, device family to iPad.
 
-Then pick an iPad destination and run. Tap **Add box** to create a sketch +
-extrude, drag to orbit, pinch to zoom, use the share button to export STL.
+Then pick an iPad destination and run. ForgeCAD is a document-based app: the
+system document browser opens first — tap **Create Document** to start a new
+`.forge` part (or open an existing one from Files/iCloud). Tap **Add box** to
+create a sketch + extrude, drag to orbit, pinch to zoom, undo with the toolbar,
+⌘Z or three-finger swipe, and use the share button to export STL. Parts
+autosave; reopening a `.forge` file regenerates its feature history.
 
 If the app launches to a blank white screen with only the status bar, work
 through [docs/DEBUGGING-BLANK-SCREEN.md](docs/DEBUGGING-BLANK-SCREEN.md).
@@ -93,8 +98,8 @@ geometry. Regeneration replays it: sketches are solved, profiles extruded into
 **B-rep solids** with shared topology, solids tessellated into flat-shaded
 meshes, meshes handed to RealityKit. Model space is millimetres, right-handed,
 Z-up; the viewport rotates into RealityKit's Y-up. All core types are value
-types and `Sendable`, so undo is a snapshot stack and there is no shared
-mutable state to guard. Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+types and `Sendable`, so undo is a snapshot swap registered with the system
+`UndoManager` and there is no shared mutable state to guard. Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Contributing
 

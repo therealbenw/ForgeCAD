@@ -7,7 +7,7 @@ import ForgeRender
 /// ForgeCAD's Z-up model space into RealityKit's Y-up scene space; the camera
 /// is a child of that same root so `OrbitCamera` math stays in model space.
 struct ViewportView: View {
-    @Environment(DocumentStore.self) private var store
+    @Environment(PartSession.self) private var session
     @State private var camera = OrbitCamera()
     @State private var lastDrag: CGSize = .zero
     @State private var lastMagnification: CGFloat = 1
@@ -59,7 +59,7 @@ struct ViewportView: View {
         .background(Color(white: 0.12))
         .gesture(orbitGesture)
         .simultaneousGesture(zoomGesture)
-        .onChange(of: store.revision, initial: true) { _, _ in
+        .onChange(of: session.revision, initial: true) { _, _ in
             frameModel()
         }
     }
@@ -95,8 +95,8 @@ struct ViewportView: View {
     }
 
     private func rebuildModel(in model: Entity) {
-        if model.components[RevisionComponent.self]?.revision == store.revision { return }
-        model.components.set(RevisionComponent(revision: store.revision))
+        if model.components[RevisionComponent.self]?.revision == session.revision { return }
+        model.components.set(RevisionComponent(revision: session.revision))
 
         for child in model.children where child.name.hasPrefix("body.") {
             child.removeFromParent()
@@ -107,7 +107,7 @@ struct ViewportView: View {
         material.roughness = 0.55
         material.metallic = 0.1
 
-        for (index, mesh) in store.renderMeshes.enumerated() {
+        for (index, mesh) in session.renderMeshes.enumerated() {
             guard let resource = try? MeshResource.make(from: mesh) else { continue }
             let entity = ModelEntity(mesh: resource, materials: [material])
             entity.name = "body.\(index)"
@@ -128,7 +128,7 @@ struct ViewportView: View {
     }
 
     private func frameModel() {
-        let box = store.renderMeshes.reduce(ForgeGeometry.BoundingBox.empty) { $0.union($1.boundingBox) }
+        let box = session.renderMeshes.reduce(ForgeGeometry.BoundingBox.empty) { $0.union($1.boundingBox) }
         if box.isEmpty {
             camera = OrbitCamera()
         } else {

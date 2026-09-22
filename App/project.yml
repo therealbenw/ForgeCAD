@@ -32,6 +32,15 @@ targets:
         CFBundleDisplayName: ForgeCAD
         UILaunchScreen: {}
         UIRequiresFullScreen: false
+        # Document-based app (DocumentGroup): system document browser, Files
+        # integration, open-in-place. The .forge type is declared below.
+        UISupportsDocumentBrowser: true
+        LSSupportsOpeningDocumentsInPlace: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: ForgeCAD Part
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+            LSItemContentTypes: [com.forgecad.document]
         UISupportedInterfaceOrientations~ipad:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown

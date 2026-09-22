@@ -14,6 +14,7 @@ Boxes are unchecked until merged to `main` with tests.
 - [x] Feature tree (`sketch`, `extrude`), regeneration with per-feature errors, undo
 - [x] STL / OBJ export, `.forge` JSON format
 - [x] iPad app shell: feature tree, RealityKit viewport, orbit/zoom, sample box, STL share
+- [x] Document-based app: `DocumentGroup`, `.forge` open/save via the system browser, system undo
 
 ## M1 — Sketch on glass
 
@@ -57,7 +58,7 @@ predicates, restricted to planar + cylindrical surfaces first.
 - [ ] Fillet / chamfer on planar edges
 - [ ] Shell, pattern (linear/circular), mirror
 - [ ] Feature editing: reorder, suppress, roll back the history marker
-- [ ] Document browser (`DocumentGroup`), iCloud, `.forge` open/save
+- [ ] iCloud Drive container, document thumbnails, Quick Look preview extension
 - [ ] Measure tool, section view, appearance/material per body
 
 ## M6 — Interchange & platform
