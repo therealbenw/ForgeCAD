@@ -1,0 +1,53 @@
+# XcodeGen spec for the thin iPad app target.
+#
+#   brew install xcodegen
+#   cd App && xcodegen generate && open ForgeCAD.xcodeproj
+#
+# The generated .xcodeproj is gitignored; this file is the source of truth.
+# If you prefer to build the project by hand in Xcode, see README.md.
+name: ForgeCAD
+options:
+  bundleIdPrefix: com.therealbenw
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  ForgeCore:
+    path: ..
+
+targets:
+  ForgeCAD:
+    type: application
+    platform: iOS
+    sources:
+      - path: ForgeCAD
+    dependencies:
+      - package: ForgeCore
+        products: [ForgeGeometry, ForgeKernel, ForgeSketch, ForgeDocument, ForgeRender, ForgeIO]
+    info:
+      path: ForgeCAD/Info.plist
+      properties:
+        CFBundleDisplayName: ForgeCAD
+        UILaunchScreen: {}
+        UIRequiresFullScreen: false
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.forgecad.document
+            UTTypeDescription: ForgeCAD Document
+            UTTypeConformsTo: [public.json]
+            UTTypeTagSpecification:
+              public.filename-extension: [forge]
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: "2"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        GENERATE_INFOPLIST_FILE: false
+        PRODUCT_BUNDLE_IDENTIFIER: com.therealbenw.ForgeCAD
+        CODE_SIGN_STYLE: Automatic

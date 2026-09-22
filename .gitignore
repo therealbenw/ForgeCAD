@@ -1,0 +1,25 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+# The app project is generated from App/project.yml (xcodegen). Remove the
+# next line if you create the project by hand and want to commit it.
+App/ForgeCAD.xcodeproj
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
