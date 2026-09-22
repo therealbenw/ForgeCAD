@@ -8,13 +8,15 @@ reused on macOS or visionOS later.
 ```
  App/ForgeCAD (SwiftUI + RealityKit)
  ┌──────────────────────────────────────────────────────────────┐
- │  ContentView ── FeatureTreeView ── ViewportView (RealityView) │
- │                     DocumentStore (@Observable, undo)          │
+ │  DocumentGroup ── ForgeFileDocument (.forge ⇄ Document)       │
+ │    └─ PartEditorView ── FeatureTreeView ── ViewportView       │
+ │            PartSession (@Observable: regen results, selection) │
+ │            system UndoManager (snapshot undo/redo)             │
  └──────────────────────────────┬───────────────────────────────┘
                                 │ RenderMesh → MeshResource
  ForgeCore (Swift package)      ▼
  ┌────────────┐  ┌────────────┐  ┌────────────┐
- │ ForgeIO    │  │ ForgeRender│  │ForgeDocument│  feature tree, Regenerator, UndoStack
+ │ ForgeIO    │  │ ForgeRender│  │ForgeDocument│  feature tree, Regenerator
  │ STL/OBJ/   │  │ RenderMesh │  │            │
  │ .forge     │  │ OrbitCamera│  └─────┬──────┘
  └─────┬──────┘  └─────┬──────┘        │
@@ -33,8 +35,10 @@ reused on macOS or visionOS later.
 ## Data flow
 
 1. The user edits the **Document** (a value type holding an ordered list of
-   `Feature`s). Every edit is committed through `DocumentStore.commit`, which
-   snapshots into the `UndoStack`.
+   `Feature`s). SwiftUI's `DocumentGroup` owns it via `ForgeFileDocument`;
+   every edit goes through `PartSession.commit`, which writes the new value
+   through the binding and registers the previous snapshot with the system
+   `UndoManager` (so ⌘Z, three-finger swipe and the Undo menu all work).
 2. `Regenerator.regenerate` replays the feature history:
    - `Sketch` features are solved by `RelaxationSolver`.
    - `Extrude` features pull closed profiles from the solved sketch
@@ -45,6 +49,10 @@ reused on macOS or visionOS later.
 4. `ViewportView` turns `RenderMesh`es into RealityKit `MeshResource`s and
    places them under a root entity that rotates Z-up model space into
    RealityKit's Y-up scene.
+
+`PartSession` holds only derived state (regeneration result, render buffers,
+selection, revision counter) — never the document — so it can be recreated
+freely and there is one source of truth for the part.
 
 Geometry is never persisted — a `.forge` file is just the feature history as
 JSON (`ForgeFileFormat`). Exports (STL/OBJ) are produced from the tessellation.
@@ -64,7 +72,7 @@ JSON (`ForgeFileFormat`). Exports (STL/OBJ) are produced from the tessellation.
 - **Determinism**: anything that produces output (tessellation, export)
   iterates `Solid.sortedFaces`, never raw dictionary order.
 - **Value semantics everywhere**: `Solid`, `Sketch`, `Document` are structs.
-  Undo is a snapshot stack; concurrency is trivially safe (`Sendable`).
+  Undo is a snapshot swap; concurrency is trivially safe (`Sendable`).
 
 ## Module boundaries
 
