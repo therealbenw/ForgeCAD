@@ -68,6 +68,9 @@ Option B — by hand in Xcode:
 Then pick an iPad destination and run. Tap **Add box** to create a sketch +
 extrude, drag to orbit, pinch to zoom, use the share button to export STL.
 
+If the app launches to a blank white screen with only the status bar, work
+through [docs/DEBUGGING-BLANK-SCREEN.md](docs/DEBUGGING-BLANK-SCREEN.md).
+
 ### Quick tour in code
 
 ```swift
